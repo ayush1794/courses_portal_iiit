@@ -2,26 +2,42 @@ To set up your automatic courses notification script, follow these steps.
 (All files mentioned can be found in the exracted folder.)
 
 1) Open the script.sh and replace the "path-to-script" with wherever you keep the new_cour.py script.
+
 2) Don't change the export_x_info.sh script!!! :P
+
 3) In the new_cour.py script replace "path-to-script with wherever you keep the new_cour.py script.(on line 106,112,117,144,145,148) -> Can use find and replace.
+
 4) In your .bashrc add the line (this is same as the no_proxy in firefox)
 	-> export no_proxy="localhost, 127.0.0.1, iiit.ac.in, .iiit.ac.in,iiit.net, .iiit.net, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8"
+	
 5) Change the permissions of new_cour.py, script.sh and export_x_info.sh to 755.
+
 6) Check if you have all the imported libraries in new_cour.py installed (esp. keyring library). If not install them using apt-get, pacman etc.. sudo apt-get install python-<LibraryName>
+
 7) Run new_cour.py (Follow Instructions carefully !! After execution check the newly created folders.)
+
 8) Schedule your scrpit. ( See Below )
+
 9) Restart Your Computer.
+
 
 
 Now there are two ways to schedule this script.
 Way 1 ---- Crontab (Preferred and Tested)
 
 1) Open Startup Applications and add export_x_info.sh in it. (DIY :P) This will run export_x_info.sh everytime comupter starts.
+
 2) IMPORTANT STEP!!! Copy the env variables to crontab except DBUS_SESSION_BUS_ADDRESS.(WHY? Crontab uses it's own env variables ... no good.) 
+
 	-> Type env > some_file. Remove DBUS_SESSION_BUS_ADDRESS line from the file. (Also remove such variable which are not assigned anything, if any)
+	
 	-> copy the whole text.
+	
 	-> type crontab -e ( A text file will open. Paste these env variable after the comments.
+	
 	-> If you know crontab now you can schedule to run the script.sh file as per your needs. For those who don't follow step 3.
+	
+	
 3) Schedule crontab -
 	-> Here what I write, will run the script every 10 minutes.
 	-> 00,10,20,30,40,50 * * * * path-to-script/script.sh 
