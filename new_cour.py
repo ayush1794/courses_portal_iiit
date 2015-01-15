@@ -2,8 +2,9 @@
 
 import time,urllib,urllib2,cookielib,getpass,HTMLParser 
 import shelve,re,hashlib,os,pynotify,syslog,keyring 
+import os
 
-
+pwd = os.popen("echo -n $PWD").read()
 syslog.openlog("Courses")
 syslog.syslog(syslog.LOG_ALERT,"courses.py started")
 
@@ -103,18 +104,18 @@ def check(hash_list,course_id,dir):
 	if ret != hash_list[1] and ret != -1:
                 test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' %(course_id),dir+hash_list[0]+'/Resources/')
 		hash_list[1]=ret
-		p=pynotify.Notification(hash_list[0],"Resources Updated!  http://courses.iiit.ac.in/","path-to-script/iiith_logo.gif")
+		p=pynotify.Notification(hash_list[0],"Resources Updated!  http://courses.iiit.ac.in/",pwd+"iiith_logo.gif")
 		p.show()
 	ret=hash_foo('assignments.php',course_id)
 	if ret != hash_list[2] and ret !=-1:
                 test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' %(course_id),dir+hash_list[0]+'/Assignments/')
 		hash_list[2]=ret
-		p=pynotify.Notification(hash_list[0],"Assignments Updated!  http://courses.iiit.ac.in/","path-to-script/iiith_logo.gif")
+		p=pynotify.Notification(hash_list[0],"Assignments Updated!  http://courses.iiit.ac.in/",pwd+"iiith_logo.gif")
 		p.show()
 	ret=hash_foo('allthreads.php',course_id)
 	if ret != hash_list[3] and ret !=-1:
 		hash_list[3]=ret
-		p=pynotify.Notification(hash_list[0],"Threads Updated!  http://courses.iiit.ac.in/","path-to-script/iiith_logo.gif")
+		p=pynotify.Notification(hash_list[0],"Threads Updated!  http://courses.iiit.ac.in/",pwd+"iiith_logo.gif")
 		p.show()
 
 
@@ -141,12 +142,12 @@ def start_notify(data):
 			data[course_id].append(hash_foo(i,course_id))
 
 
-if 'data' not in os.listdir('path-to-script'):
-	data=shelve.open('path-to-script/data',writeback=True)
+if 'data' not in os.listdir(pwd):
+	data=shelve.open(pwd+'/data',writeback=True)
 	p=authenticate(data)
 	start_notify(data)
 else:
-	data=shelve.open('path-to-script/data',writeback=True)
+	data=shelve.open(pwd+'/data',writeback=True)
 	p=authenticate(data)
 
 
