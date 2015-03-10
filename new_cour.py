@@ -4,7 +4,7 @@ import time,urllib,urllib2,cookielib,getpass,HTMLParser
 import shelve,re,hashlib,os,pynotify,syslog,keyring 
 import os
 
-pwd = os.popen("echo -n $PWD").read()
+pwd = 'path-to-script'					
 syslog.openlog("Courses")
 syslog.syslog(syslog.LOG_ALERT,"courses.py started")
 
