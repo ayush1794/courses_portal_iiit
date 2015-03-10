@@ -104,18 +104,18 @@ def check(hash_list,course_id,dir):
 	if ret != hash_list[1] and ret != -1:
                 test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' %(course_id),dir+hash_list[0]+'/Resources/')
 		hash_list[1]=ret
-		p=pynotify.Notification(hash_list[0],"Resources Updated!  http://courses.iiit.ac.in/",pwd+"iiith_logo.gif")
+		p=pynotify.Notification(hash_list[0],"Resources Updated!  http://courses.iiit.ac.in/",pwd+"/iiith_logo.gif")
 		p.show()
 	ret=hash_foo('assignments.php',course_id)
 	if ret != hash_list[2] and ret !=-1:
                 test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' %(course_id),dir+hash_list[0]+'/Assignments/')
 		hash_list[2]=ret
-		p=pynotify.Notification(hash_list[0],"Assignments Updated!  http://courses.iiit.ac.in/",pwd+"iiith_logo.gif")
+		p=pynotify.Notification(hash_list[0],"Assignments Updated!  http://courses.iiit.ac.in/",pwd+"/iiith_logo.gif")
 		p.show()
 	ret=hash_foo('allthreads.php',course_id)
 	if ret != hash_list[3] and ret !=-1:
 		hash_list[3]=ret
-		p=pynotify.Notification(hash_list[0],"Threads Updated!  http://courses.iiit.ac.in/",pwd+"iiith_logo.gif")
+		p=pynotify.Notification(hash_list[0],"Threads Updated!  http://courses.iiit.ac.in/",pwd+"/iiith_logo.gif")
 		p.show()
 
 
