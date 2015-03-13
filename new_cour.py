@@ -124,8 +124,8 @@ def start_notify(data):
 	st=response.content	
 	mat=re.findall(r'coursecheck.php\?select=(.*?) "',st)
 	match=re.findall(r'<font color="#0000CC" size="2">(.*?)</font>',st)
-	for i in range(len(match)):
-		course_id=mat[i+1]
+	for i in range(len(mat)):
+		course_id=mat[i]
 		course_name=match[i]
 		data[course_id]=[course_name]
 		for i in li:
