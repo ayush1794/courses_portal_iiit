@@ -6,6 +6,7 @@ import shelve,re,hashlib,os,pynotify,syslog,keyring
 pwd = os.path.abspath('.')
 syslog.openlog("Courses")
 syslog.syslog(syslog.LOG_ALERT,"courses.py started at %s" %(pwd))
+session = requests.session()
 
 def authenticate(param): 
         url1 = 'http://courses.iiit.ac.in'
