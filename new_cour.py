@@ -87,8 +87,10 @@ def test(url,dir):
 
 
 def check(hash_list,course_id,dir):
-        test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' %(course_id),dir+hash_list[0]+'/Resources/')
-        test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' %(course_id),dir+hash_list[0]+'/Assignments/')
+        if 'first' not in data :
+            data['first'] = 1
+            test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' %(course_id),dir+hash_list[0]+'/resources/')
+            test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' %(course_id),dir+hash_list[0]+'/assignments/')
 	p=pynotify.init("11")
 	ret=hash_foo('resources.php',course_id)
 	if ret != hash_list[1] and ret != -1:
@@ -152,7 +154,7 @@ else:
 
 
 for i in data:
-	if i != '!@#$%^' and i !='dir'and i != '100':
+	if i != '!@#$%^' and i !='dir'and i != '100' and i!='first'
 		check(data[i],i,data['dir'])
 
 data.close()
