@@ -5,20 +5,20 @@ To set up your automatic courses notification script, follow these steps.
 
 2) Don't change the export_x_info.sh script!!! :P
 
-3) In the new_cour.py script replace "path-to-script with wherever you keep the new_cour.py script.(on line 106,112,117,144,145,148) -> Can use find and replace.
-
-4) In your .bashrc add the line (this is same as the no_proxy in firefox)
+3) In your .bashrc add the line (this is same as the no_proxy in firefox)
 	-> export no_proxy="localhost, 127.0.0.1, iiit.ac.in, .iiit.ac.in,iiit.net, .iiit.net, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8"
 	
-5) Change the permissions of new_cour.py, script.sh and export_x_info.sh to 755.
+4) Change the permissions of new_cour.py, script.sh and export_x_info.sh to 755.
 
-6) Check if you have all the imported libraries in new_cour.py installed (esp. keyring library). If not install them using apt-get, pacman etc.. sudo apt-get install python-<LibraryName>
+5) Check if you have all the imported libraries in new_cour.py installed (esp. keyring library). If not install them using apt-get, pacman etc.. sudo apt-get install python-<LibraryName>
+**For Arch Linux, kering is not available, so you need to harcode the username
+and password**
 
-7) Run new_cour.py (Follow Instructions carefully !! After execution check the newly created folders.)
+6) Run new_cour.py (Follow Instructions carefully !! After execution check the newly created folders.)
 
-8) Schedule your scrpit. ( See Below )
+7) Schedule your scrpit. ( See Below )
 
-9) Restart Your Computer.
+8) Restart Your Computer.
 
 
 
