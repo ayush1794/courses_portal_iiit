@@ -1,29 +1,22 @@
 #!/usr/bin/python
 
-import time,urllib,urllib2,cookielib,getpass,HTMLParser 
+import time,requests,cookielib,getpass,HTMLParser 
 import shelve,re,hashlib,os,pynotify,syslog,keyring 
-import os
 
-pwd = 'path-to-script'
+pwd = os.path.abspath('.')
 syslog.openlog("Courses")
-syslog.syslog(syslog.LOG_ALERT,"courses.py started")
+syslog.syslog(syslog.LOG_ALERT,"courses.py started at %s" %(pwd))
 
 def authenticate(param): 
-	jar=cookielib.CookieJar() 
-	opener=urllib2.build_opener(urllib2.HTTPCookieProcessor(jar)) 
-	user_agent = 'Mozilla/5.0 (Ubuntu; X11; Linux i686; rv:8.0) Gecko/20100101 Firefox/8.0' 
-	opener.addheaders=[('User-Agent' , user_agent)] 
-	urllib2.install_opener(opener) 
-	data=None 
-	request=urllib2.Request('https://login.iiit.ac.in/cas/login?service=http%3A%2F%2Fcourses.iiit.ac.in%2FEdgeNet%2Fhome.php',data) 
-	try:
-		response=urllib2.urlopen(request) 
+        url1 = 'http://courses.iiit.ac.in'
+        try:
+	    response=session.get(url1, verify=False)
 	except:
-		if '!@#$%^' not in param :
-			print 'Please Check Your Internet Connection'
-			os.remove('./data')
-		exit() 
-	html=response.read() 
+	    if '!@#$%^' not in param :
+		    print 'Please Check Your Internet Connection'
+		    os.remove('./data')
+	    exit() 
+	html=response.content
 	class MyParser(HTMLParser.HTMLParser): 
 		def handle_starttag(self,tag,attrs): 
 			if tag=='form': 
@@ -41,7 +34,7 @@ def authenticate(param):
 						break 
 	parse=MyParser() 
 	parse.feed(html) 
-	action=parse.action 
+	action=parse.action
 	lt=parse.lt 
 	if '!@#$%^' not in param :
 		user=raw_input('Username [eg- fname.lname@students.iiit.ac.in] : ')
@@ -50,48 +43,44 @@ def authenticate(param):
 		param['!@#$%^']=user
 	else :
 		pwd=keyring.get_password('Courses',param['!@#$%^']) 	
-	values={'username':param['!@#$%^'], 'password':pwd, 'lt':lt, '_eventId':'submit'} 
-	action='https://login.iiit.ac.in'+action 	
-	data=urllib.urlencode(values) 
-	request=urllib2.Request(action,data) 	
-	response=urllib2.urlopen(request)
+	payload={'username':param['!@#$%^'], 'password':pwd, 'lt':lt, '_eventId':'submit', 'submit':'Login'} 
+        action='https://login.iiit.ac.in'+action 	
+	response = session.post(action, verify=False, data=payload)
 	return 0
 
 def hash_foo(page,course_id):
-	request=urllib2.Request('http://courses.iiit.ac.in/EdgeNet/'+page+'?select='+course_id)
+	url = 'http://courses.iiit.ac.in/EdgeNet/'+page+'?select='+course_id
 	try:
-		response=urllib2.urlopen(request)
+		response=session.get(url)
 	except:
 		return -1
 	out=hashlib.md5()
-	st=response.read()
+	st=response.content
 	match=re.search(r'<table cellspacing = "?8"?.*?</table>',st)
 	out.update(match.group(0))
 	return out.digest()
 	
 
-class Head(urllib2.Request):
-	def get_method(self):
-		return "HEAD"
-
 def test(url,dir):
         if not os.path.exists(dir):
             os.makedirs(dir)
         f=shelve.open(dir+'.datasync',writeback=True)
-        data=urllib2.urlopen(url).read()
+        data=session.get(url).content
         match=re.findall(r'(<tr><td><font color = "#585858"><font.*?</tr>)',data)
         for j in match:
             l=hashlib.md5(j).digest()
 	    down=re.findall(r'<a href="(.*?)"',j)
 	    if  down:
 	    	if(down[0].startswith('/EdgeNet/')):
-	   	 	req=urllib2.urlopen(Head('http://courses.iiit.ac.in'+down[0]))
-			filename=re.findall(r'filename="(.*?)"',str(req.info()))[0]
-                	if not (f.has_key(filename) and f[filename]==l) :
-			    req=urllib2.urlopen('http://courses.iiit.ac.in'+down[0])
-			    f2=open(dir+filename,'w')
-			    f2.write(req.read())
-			    f2.close()
+	   	 	req=session.head('http://courses.iiit.ac.in'+down[0])
+			filename=re.findall(r'filename="(.*?)"',str(req.headers))[0]
+                        if not (f.has_key(filename) and f[filename]==l) :
+			    req=session.get('http://courses.iiit.ac.in'+down[0], stream=True)
+			    f2=open(dir+filename,'wb')
+                            for chunk in req.iter_content(chunk_size=1024):
+			        if chunk:
+                                    f2.write(chunk)
+                            f2.close()
         	            f[filename]=l
         f.close()
 
@@ -123,19 +112,19 @@ def start_notify(data):
         dir=raw_input('Enter absolute path of Saving-Directory (must start and end with a \'/\' ) : ')
         data['dir']=dir
 	li=['resources.php','assignments.php','allthreads.php']
-	request=urllib2.Request('http://courses.iiit.ac.in/EdgeNet/home.php')
+	url = 'http://courses.iiit.ac.in/EdgeNet/home.php'
 	try:
-		response=urllib2.urlopen(request)
+		response=session.get(url)
 	except:
 		print "Check Your Internet Connection and Try Again"
 		data.close()
 		os.remove('./data')
 		exit()
-	st=response.read()	
+	st=response.content	
 	mat=re.findall(r'coursecheck.php\?select=(.*?) "',st)
 	match=re.findall(r'<font color="#0000CC" size="2">(.*?)</font>',st)
-	for i in range(len(mat)):
-		course_id=mat[i]
+	for i in range(len(match)):
+		course_id=mat[i+1]
 		course_name=match[i]
 		data[course_id]=[course_name]
 		for i in li:
@@ -158,5 +147,4 @@ for i in data:
 
 data.close()
 syslog.openlog("Courses")
-syslog.syslog(syslog.LOG_ALERT,"courses.py ended")
-			
+syslog.syslog(syslog.LOG_ALERT,"courses.py ended")		
