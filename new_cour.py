@@ -111,6 +111,7 @@ def check(hash_list,course_id,dir):
 
 def start_notify(data):
         dir=raw_input('Enter absolute path of Saving-Directory (must start and end with a \'/\' ) : ')
+        TA = raw_input("Are you TA? [y/n] : ")
         data['dir']=dir
 	li=['resources.php','assignments.php','allthreads.php']
 	url = 'http://courses.iiit.ac.in/EdgeNet/home.php'
@@ -124,12 +125,20 @@ def start_notify(data):
 	st=response.content	
 	mat=re.findall(r'coursecheck.php\?select=(.*?) "',st)
 	match=re.findall(r'<font color="#0000CC" size="2">(.*?)</font>',st)
-	for i in range(len(mat)):
-		course_id=mat[i]
-		course_name=match[i]
-		data[course_id]=[course_name]
-		for i in li:
-			data[course_id].append(hash_foo(i,course_id))
+        if TA.lower() == 'y':
+            for i in range(len(match)):
+		    course_id=mat[i+1]
+		    course_name=match[i]
+		    data[course_id]=[course_name]
+		    for i in li:
+			    data[course_id].append(hash_foo(i,course_id))
+        else:
+            for i in range(len(mat)):
+		    course_id=mat[i]
+		    course_name=match[i]
+		    data[course_id]=[course_name]
+		    for i in li:
+			    data[course_id].append(hash_foo(i,course_id))
 
 
 if 'data' not in os.listdir(pwd):
