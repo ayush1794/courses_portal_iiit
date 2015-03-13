@@ -3,7 +3,7 @@
 import time,requests,cookielib,getpass,HTMLParser 
 import shelve,re,hashlib,os,pynotify,syslog,keyring 
 
-pwd = os.path.abspath('.')
+pwd = 'path-to-script'
 syslog.openlog("Courses")
 syslog.syslog(syslog.LOG_ALERT,"courses.py started at %s" %(pwd))
 session = requests.session()
