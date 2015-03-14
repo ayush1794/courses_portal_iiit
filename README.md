@@ -1,4 +1,6 @@
-To set up your automatic courses notification script, follow these steps.
+### Coureses Downloading Script ###
+	
+	To set up your automatic courses notification script, follow these steps.
 (All files mentioned can be found in the exracted folder.)
 
 1) Open the script.sh and replace the "path-to-script" with wherever you keep the new_cour.py script.
@@ -19,7 +21,6 @@ and password**
 7) Schedule your scrpit. ( See Below )
 
 8) Restart Your Computer.
-
 
 
 Now there are two ways to schedule this script.
@@ -47,8 +48,11 @@ Way 1 ---- Crontab (Preferred and Tested)
 Way 2 ----- DIY (Keep a while 1 starting at line 142/143 till the end and add this script in startup applications).
 
 The script is well tested and has been run over the whole of the last semester without glitches. Still, if you have any problems please contact -
+
+
 	->ayush.garg@students.iiit.ac.in
 	->akshay.jaggi@students.iiit.ac.in
+	->parth.kolekar@students.iiit.ac.in
 
 
 

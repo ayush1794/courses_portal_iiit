@@ -1,3 +1,3 @@
 #!/bin/bash
-# file: pullmail.sh
-source $HOME/.Xdbus; path-to-script/new_cour.py
+source $HOME/.Xdbus; 
+./new_cour.py #replace with absolute path.
