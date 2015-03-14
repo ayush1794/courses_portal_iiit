@@ -1,7 +1,19 @@
 #!/usr/bin/python
 
-import time,requests,cookielib,getpass,HTMLParser 
-import shelve,re,hashlib,os,pynotify,syslog,keyring 
+import cookielib
+import getpass
+import hashlib
+import HTMLParser
+import os
+import re
+import shelve
+import time
+
+import keyring
+import pynotify
+import requests
+
+import syslog
 
 try:
     pwd = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-1])
@@ -166,4 +178,3 @@ if __name__ == '__main__':
     syslog.syslog(syslog.LOG_ALERT,"courses.py ended")		
 else:
     print "This may only be run from the command line. There is no support to run this as a module yet!"
-
