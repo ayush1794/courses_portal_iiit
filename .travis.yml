@@ -10,5 +10,5 @@ before_install:
     - sudo apt-get install -yqq 
     - sudo apt-get install python-nose
     - sudo apt-get install python-notify
-    - sudo apt-get install gnome
+    - sudo apt-get install gnome gdm
 script: nosetests tests --verbose
