@@ -6,7 +6,7 @@ python:
     - "3.3"
     - "3.4"
 before_install:
-    - sudo apt-get install gnome gdm
+    - sudo apt-get install gnome
     - sudo apt-get update -qq
     - sudo apt-get install -yqq 
     - sudo apt-get install python-nose
