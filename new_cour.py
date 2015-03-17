@@ -161,13 +161,13 @@ def check(hash_list, course_id, direc):
     pynotify.init("11")
     ret = hash_foo('resources.php', course_id)
     if ret != hash_list[1] and ret != -1:
-        test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' % (course_id), direc + hash_list[0] + '/Resources/')
+        test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' % (course_id), direc + hash_list[0] + '/resources/')
         hash_list[1] = ret
         pynotification = pynotify.Notification(hash_list[0], "Resources Updated!  http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s" % (course_id), os.path.join(RUNNING_DIRECTORY, "iiith_logo.gif"))
         pynotification.show()
     ret = hash_foo('assignments.php', course_id)
     if ret != hash_list[2] and ret != -1:
-        test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' %(course_id), direc+hash_list[0]+'/Assignments/')
+        test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' %(course_id), direc+hash_list[0]+'/assignments/')
         hash_list[2] = ret
         pynotification = pynotify.Notification(hash_list[0], "Assignments Updated!  http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s" % (course_id), os.path.join(RUNNING_DIRECTORY, "iiith_logo.gif"))
         pynotification.show()
