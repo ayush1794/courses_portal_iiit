@@ -6,6 +6,8 @@
     Note : For internal use only.
 """
 
+from __future__ import print_function
+
 import getpass
 import hashlib
 import HTMLParser
@@ -16,7 +18,7 @@ import shelve
 import keyring
 import pynotify
 import requests
-from requests.exceptions import TooManyRedirects
+from requests.exceptions import ConnectionError, TooManyRedirects
 
 import syslog
 
@@ -26,8 +28,10 @@ except NameError:
     RUNNING_DIRECTORY = os.path.realpath('.')
 
 syslog.openlog("Courses")
-syslog.syslog(syslog.LOG_ALERT, "courses.py started at %s" %(RUNNING_DIRECTORY))
+syslog.syslog(syslog.LOG_ALERT, "script started at %s" % (RUNNING_DIRECTORY))
 SESSION = requests.session()
+DEBUG = False
+
 
 def authenticate(param):
     """
@@ -37,17 +41,26 @@ def authenticate(param):
     try:
         response = SESSION.get(url1, verify=False)
     except ValueError:
-        print "You can not make manual requests. Use PreparedRequest"
+        print("You can not make manual requests. Use PreparedRequest")
         exit()
     except TooManyRedirects:
-        print "Too many redirects... Something went wrong."
+        print("Too many redirects... Something went wrong.")
         exit()
-    except Exception:
-        if '!@#$%^' not in param:
-            print 'Please Check Your Internet Connection'
-            os.remove(os.path.join(RUNNING_DIRECTORY, "data"))
-            exit()
+    except ConnectionError:
+        print("Could not connect to courses.iiit.ac.in. Check your config")
+        exit()
+    except Exception as exception:
+        print('Please Check Your Internet Connection')
+        os.remove(os.path.join(RUNNING_DIRECTORY, "data"))
+        if DEBUG:
+            raise exception
+        exit()
+    if DEBUG:
+        print('Pre-Authentication Sucessfull')
     html = response.content
+    if DEBUG:
+        print(html)
+
     class MyParser(HTMLParser.HTMLParser):
         """
             HTMLParser class derivative for parseing data.
@@ -81,26 +94,30 @@ def authenticate(param):
         try:
             keyring.set_password('Courses', user, passwd)
         except TypeError:
-            print "Keyring is not of type Keyring"
+            print("Keyring is not of type Keyring")
         except Exception:
-            pass
+            if DEBUG:
+                print('Something is going wrong during auth')
         param['!@#$%^'] = user
     else:
         try:
             passwd = keyring.get_password('Courses', param['!@#$%^'])
-        except Exception:
-            print "You need to enter password manually. Keyring not supported. :("
+        except Exception as exception:
+            print("You need to enter password manually. Keyring not supported. :(")
             passwd = getpass.getpass()
     payload = {
-        'username':param['!@#$%^'],
-        'password':passwd,
-        'lt':lt,
-        '_eventId':'submit',
-        'submit':'Login'
+        'username': param['!@#$%^'],
+        'password': passwd,
+        'lt': lt,
+        '_eventId': 'submit',
+        'submit': 'Login'
     }
+    if DEBUG:
+        print(payload)
     action = 'https://login.iiit.ac.in' + action
     response = SESSION.post(action, verify=False, data=payload)
     return 0
+
 
 def hash_foo(page, course_id):
     """
@@ -110,18 +127,22 @@ def hash_foo(page, course_id):
     try:
         response = SESSION.get(url)
     except ValueError:
-        print "You can not make manual requests. Use PreparedRequest"
+        print("You can not make manual requests. Use PreparedRequest")
         exit()
     except TooManyRedirects:
-        print "Too many redirects... Something went wrong."
+        print("Too many redirects... Something went wrong.")
         exit()
-    except Exception:
+    except Exception as exception:
+        if DEBUG:
+            print('Something going wrong during hash_foo complutation')
+            raise exception
         return -1
     out = hashlib.md5()
     response_string = response.content
     match = re.search(r'<table cellspacing = "?8"?.*?</table>', response_string)
     out.update(match.group(0))
     return out.digest()
+
 
 def test(url, direc):
     """
@@ -140,7 +161,7 @@ def test(url, direc):
             if down[0].startswith('/EdgeNet/'):
                 req = SESSION.head('http://courses.iiit.ac.in'+down[0])
                 filename = re.findall(r'filename="(.*?)"', str(req.headers))[0]
-                if not (shelve_file.has_key(filename) and shelve_file[filename] == l):
+                if not (filename in shelve_file and shelve_file[filename] == l):
                     req = SESSION.get('http://courses.iiit.ac.in'+down[0], stream=True)
                     binary_hash = open(os.path.join(direc, filename), 'wb')
                     for chunk in req.iter_content(chunk_size=1024):
@@ -150,12 +171,15 @@ def test(url, direc):
                     shelve_file[filename] = l
     shelve_file.close()
 
+
 def check(hash_list, course_id, direc):
     """
         checks for updated courses
     """
     if 'first' not in DATA_FILE:
         DATA_FILE['first'] = 1
+    if DEBUG:
+        print("Course : " + str(course_id))
     test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' % (course_id), direc + hash_list[0]+'/resources/')
     test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' % (course_id), direc + hash_list[0]+'/assignments/')
     pynotify.init("11")
@@ -167,7 +191,7 @@ def check(hash_list, course_id, direc):
         pynotification.show()
     ret = hash_foo('assignments.php', course_id)
     if ret != hash_list[2] and ret != -1:
-        test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' %(course_id), direc+hash_list[0]+'/assignments/')
+        test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' % (course_id), direc+hash_list[0]+'/assignments/')
         hash_list[2] = ret
         pynotification = pynotify.Notification(hash_list[0], "Assignments Updated!  http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s" % (course_id), os.path.join(RUNNING_DIRECTORY, "iiith_logo.gif"))
         pynotification.show()
@@ -176,6 +200,7 @@ def check(hash_list, course_id, direc):
         hash_list[3] = ret
         pynotification = pynotify.Notification(hash_list[0], "Threads Updated!  http://courses.iiit.ac.in/EdgeNet/allthreads.php?select=%s" % (course_id), os.path.join(RUNNING_DIRECTORY, "/iiith_logo.gif"))
         pynotification.show()
+
 
 def start_notify(shelve_file):
     """
@@ -190,19 +215,23 @@ def start_notify(shelve_file):
     try:
         response = SESSION.get(url)
     except ValueError:
-        print "You can not make manual requests. Use PreparedRequest"
+        print("You can not make manual requests. Use PreparedRequest")
         exit()
     except TooManyRedirects:
-        print "Too many redirects... Something went wrong."
+        print("Too many redirects... Something went wrong.")
         exit()
-    except Exception:
-        print "Check Your Internet Connection and Try Again"
+    except Exception as exception:
+        print("Check Your Internet Connection and Try Again")
         shelve_file.close()
         os.remove(os.path.join(RUNNING_DIRECTORY, "data"))
+        if DEBUG:
+            raise exception
         exit()
     response_string = response.content
     mat = re.findall(r'coursecheck.php\?select=(.*?) "', response_string)
     match = re.findall(r'<font color="#0000CC" size="2">(.*?)</font>', response_string)
+    if DEBUG:
+        print(match)
     if is_ta.lower() == 'y':
         for iterator in xrange(len(match)):
             course_id = mat[iterator+1]
@@ -219,13 +248,10 @@ def start_notify(shelve_file):
                 shelve_file[course_id].append(hash_foo(list_iterator, course_id))
 
 if __name__ == '__main__':
+    DATA_FILE = shelve.open(os.path.join(RUNNING_DIRECTORY, 'data'), writeback=True)
+    authenticate(DATA_FILE)
     if 'data' not in os.listdir(RUNNING_DIRECTORY):
-        DATA_FILE = shelve.open(os.path.join(RUNNING_DIRECTORY, 'data'), writeback=True)
-        authenticate(DATA_FILE)
         start_notify(DATA_FILE)
-    else:
-        DATA_FILE = shelve.open(os.path.join(RUNNING_DIRECTORY, 'data'), writeback=True)
-        authenticate(DATA_FILE)
     for i in DATA_FILE:
         if i != '!@#$%^' and i != 'dir'and i != '100' and i != 'first':
             check(DATA_FILE[i], i, DATA_FILE['dir'])
@@ -233,4 +259,4 @@ if __name__ == '__main__':
     syslog.openlog("Courses")
     syslog.syslog(syslog.LOG_ALERT, "courses.py ended")
 else:
-    print "Use from command line"
+    print("Use from command line")
