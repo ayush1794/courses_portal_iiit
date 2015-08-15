@@ -176,12 +176,13 @@ def check(hash_list, course_id, direc):
     """
         checks for updated courses
     """
-    if 'first' not in DATA_FILE:
-        DATA_FILE['first'] = 1
+    if 'first' + str(course_id) not in DATA_FILE:
+        DATA_FILE['first' + str(course_id)] = 1
+        test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' % (course_id), direc + hash_list[0]+'/resources/')
+        test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' % (course_id), direc + hash_list[0]+'/assignments/')
     if DEBUG:
         print("Course : " + str(course_id))
-    test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' % (course_id), direc + hash_list[0]+'/resources/')
-    test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' % (course_id), direc + hash_list[0]+'/assignments/')
+    
     pynotify.init("11")
     ret = hash_foo('resources.php', course_id)
     if ret != hash_list[1] and ret != -1:
@@ -253,7 +254,7 @@ if __name__ == '__main__':
     if 'data' not in os.listdir(RUNNING_DIRECTORY):
         start_notify(DATA_FILE)
     for i in DATA_FILE:
-        if i != '!@#$%^' and i != 'dir'and i != '100' and i != 'first':
+        if i != '!@#$%^' and i != 'dir'and i != '100' and not i.startswith('first'):
             check(DATA_FILE[i], i, DATA_FILE['dir'])
     DATA_FILE.close()
     syslog.openlog("Courses")
