@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 
 """
     A module to parse courses portal @ IIIT - H
@@ -55,9 +55,12 @@ def authenticate(param):
         if DEBUG:
             raise exception
         exit()
+
     if DEBUG:
         print('Pre-Authentication Sucessfull')
+
     html = response.content
+
     if DEBUG:
         print(html)
 
@@ -88,6 +91,10 @@ def authenticate(param):
     parse.feed(html)
     action = parse.action
     lt = parse.lt
+
+    if DEBUG:
+        print (param)
+
     if '!@#$%^' not in param:
         user = raw_input('Username [eg- fname.lname@students.iiit.ac.in] : ')
         passwd = getpass.getpass()
@@ -112,8 +119,10 @@ def authenticate(param):
         '_eventId': 'submit',
         'submit': 'Login'
     }
+
     if DEBUG:
         print(payload)
+
     action = 'https://login.iiit.ac.in' + action
     response = SESSION.post(action, verify=False, data=payload)
     return 0
@@ -180,9 +189,10 @@ def check(hash_list, course_id, direc):
         DATA_FILE['first' + str(course_id)] = 1
         test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' % (course_id), direc + hash_list[0]+'/resources/')
         test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' % (course_id), direc + hash_list[0]+'/assignments/')
+
     if DEBUG:
         print("Course : " + str(course_id))
-    
+
     pynotify.init("11")
     ret = hash_foo('resources.php', course_id)
     if ret != hash_list[1] and ret != -1:
@@ -231,8 +241,10 @@ def start_notify(shelve_file):
     response_string = response.content
     mat = re.findall(r'coursecheck.php\?select=(.*?) "', response_string)
     match = re.findall(r'<font color="#0000CC" size="2">(.*?)</font>', response_string)
+
     if DEBUG:
         print(match)
+
     if is_ta.lower() == 'y':
         for iterator in xrange(len(match)):
             course_id = mat[iterator+1]
@@ -250,8 +262,12 @@ def start_notify(shelve_file):
 
 if __name__ == '__main__':
     DATA_FILE = shelve.open(os.path.join(RUNNING_DIRECTORY, 'data'), writeback=True)
+
+    if DEBUG:
+        print (DATA_FILE)
+
     authenticate(DATA_FILE)
-    if 'data' not in os.listdir(RUNNING_DIRECTORY):
+    if 'dir' not in DATA_FILE:
         start_notify(DATA_FILE)
     for i in DATA_FILE:
         if i != '!@#$%^' and i != 'dir'and i != '100' and not i.startswith('first'):
