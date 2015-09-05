@@ -27,6 +27,8 @@ try:
 except NameError:
     RUNNING_DIRECTORY = os.path.realpath('.')
 
+DATA_DIRECTORY = os.path.expanduser("~")
+
 syslog.openlog("Courses")
 syslog.syslog(syslog.LOG_ALERT, "script started at %s" % (RUNNING_DIRECTORY))
 SESSION = requests.session()
@@ -51,7 +53,7 @@ def authenticate(param):
         exit()
     except Exception as exception:
         print('Please Check Your Internet Connection')
-        os.remove(os.path.join(RUNNING_DIRECTORY, "data"))
+        os.remove(os.path.join(DATA_FILE, "data"))
         if DEBUG:
             raise exception
         exit()
@@ -234,7 +236,7 @@ def start_notify(shelve_file):
     except Exception as exception:
         print("Check Your Internet Connection and Try Again")
         shelve_file.close()
-        os.remove(os.path.join(RUNNING_DIRECTORY, "data"))
+        os.remove(os.path.join(DATA_DIRECTORY, "data"))
         if DEBUG:
             raise exception
         exit()
@@ -261,7 +263,7 @@ def start_notify(shelve_file):
                 shelve_file[course_id].append(hash_foo(list_iterator, course_id))
 
 if __name__ == '__main__':
-    DATA_FILE = shelve.open(os.path.join(RUNNING_DIRECTORY, 'data'), writeback=True)
+    DATA_FILE = shelve.open(os.path.join(DATA_DIRECTORY, 'data'), writeback=True)
 
     if DEBUG:
         print (DATA_FILE)
