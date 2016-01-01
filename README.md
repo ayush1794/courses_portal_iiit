@@ -41,7 +41,7 @@ Way 1 ---- Crontab (Preferred and Tested)
 	
 3) Schedule crontab -
 	-> Here what I write, will run the script every 10 minutes.
-	-> 00,10,20,30,40,50 * * * * path-to-script/script.sh 
+	-> */10 * * * * path-to-script/script.sh 
 	-> type this in the file (crontab -e) and save and exit.
 	-> For more info read man pages and the comments given above in crontab -e file.
 

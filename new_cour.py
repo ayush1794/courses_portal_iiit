@@ -41,7 +41,7 @@ def authenticate(param):
     """
     url1 = 'http://courses.iiit.ac.in'
     try:
-        response = SESSION.get(url1, verify=False)
+        response = SESSION.get(url1)
     except ValueError:
         print("You can not make manual requests. Use PreparedRequest")
         exit()
@@ -91,8 +91,12 @@ def authenticate(param):
                         break
     parse = MyParser()
     parse.feed(html)
-    action = parse.action
-    lt = parse.lt
+    try: 
+        action = parse.action
+        lt = parse.lt
+    except AttributeError:
+        print('Parsing Failed. Something went wrong. :(')
+        exit()
 
     if DEBUG:
         print (param)
@@ -126,7 +130,7 @@ def authenticate(param):
         print(payload)
 
     action = 'https://login.iiit.ac.in' + action
-    response = SESSION.post(action, verify=False, data=payload)
+    response = SESSION.post(action, data=payload)
     return 0
 
 
