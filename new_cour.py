@@ -16,11 +16,13 @@ import re
 import shelve
 
 import keyring
-import pynotify
+import pymsgbox
 import requests
 from requests.exceptions import ConnectionError, TooManyRedirects
 
 import syslog
+import webbrowser
+
 
 try:
     RUNNING_DIRECTORY = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-1])
@@ -199,24 +201,25 @@ def check(hash_list, course_id, direc):
     if DEBUG:
         print("Course : " + str(course_id))
 
-    pynotify.init("11")
     ret = hash_foo('resources.php', course_id)
     if ret != hash_list[1] and ret != -1:
         test('http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s' % (course_id), direc + hash_list[0] + '/resources/')
         hash_list[1] = ret
-        pynotification = pynotify.Notification(hash_list[0], "Resources Updated!  http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s" % (course_id), os.path.join(RUNNING_DIRECTORY, "iiith_logo.gif"))
-        pynotification.show()
+        pymsgbox.native.alert("Resource Updated! @ http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s" % (course_id), 'Resource Updated!')
+        webbrowser.open("http://courses.iiit.ac.in/EdgeNet/resources.php?select=%s" % (course_id))
+
     ret = hash_foo('assignments.php', course_id)
     if ret != hash_list[2] and ret != -1:
         test('http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s' % (course_id), direc+hash_list[0]+'/assignments/')
         hash_list[2] = ret
-        pynotification = pynotify.Notification(hash_list[0], "Assignments Updated!  http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s" % (course_id), os.path.join(RUNNING_DIRECTORY, "iiith_logo.gif"))
-        pynotification.show()
+        pymsgbox.native.alert("Assignments Updated!  http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s" % (course_id), 'Assignments Updated!')
+        webbrowser.open("http://courses.iiit.ac.in/EdgeNet/assignments.php?select=%s" % (course_id))
+
     ret = hash_foo('allthreads.php', course_id)
     if ret != hash_list[3] and ret != -1:
         hash_list[3] = ret
-        pynotification = pynotify.Notification(hash_list[0], "Threads Updated!  http://courses.iiit.ac.in/EdgeNet/allthreads.php?select=%s" % (course_id), os.path.join(RUNNING_DIRECTORY, "/iiith_logo.gif"))
-        pynotification.show()
+        pymsgbox.native.alert("Threads Updated!  http://courses.iiit.ac.in/EdgeNet/allthreads.php?select=%s" % (course_id), 'Threads Updated!')
+        webbrowser.open("http://courses.iiit.ac.in/EdgeNet/allthreads.php?select=%s" % (course_id))
 
 
 def start_notify(shelve_file):
